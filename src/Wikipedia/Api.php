@@ -50,6 +50,39 @@ class Api
     }
 
     /**
+     * Check the state of the user's run page
+     *
+     * @return bool True on success, false on failure.
+     **/
+    public function allowedToRun()
+    {
+        $ret = $this->revisions(
+            'User:' . $this->user . '/Run',
+            1,
+            'older',
+            true,
+            null,
+            true,
+            false,
+            false
+        );
+
+        if (
+            is_array($ret) && count($ret) > 0 && array_key_exists(0, $ret)
+            && array_key_exists('slots', $ret[0])
+            && array_key_exists('main', $ret[0]['slots'])
+            && array_key_exists('*', $ret[0]['slots']['main'])
+        ) {
+            return preg_match(
+                '/(yes|enable|true)/iS',
+                $ret[0]['slots']['main']['*']
+            );
+        }
+
+        return false;
+    }
+
+    /**
      * This function returns the recent changes for the wiki.
      *
      * @param $count The number of items to return. (Default 10)
@@ -451,6 +484,7 @@ class Api
      * @param $bot Whether or not to mark edit as a bot edit.  (Default true)
      * @param $wpStarttime Time in MW TS format of beginning of edit.  (Default now)
      * @param $wpEdittime Time in MW TS format of last edit to that page.  (Default correct)
+     * @param $checkrun Verify the user's /Run page state (Default true)
      *
      * @return bool True on success, false on failure.
      **/
@@ -468,16 +502,10 @@ class Api
         $wpq = new \Wikipedia\Query($this->http, $this->logger);
         $wpq->queryurl = str_replace('api.php', 'query.php', $this->apiurl);
 
-        if ($checkrun == true) {
-            if (
-                !preg_match(
-                    '/(yes|enable|true)/iS',
-                    ((isset($run)) ? $run : $wpq->getpage('User:' . $user . '/Run'))
-                )
-            ) {
-                return false;
-            }
-        } /* Check /Run page */
+        if ($checkrun === true && !$this->allowedToRun()) {
+            $logger->addWarning('Run page prevented edit');
+            return false;
+        }
 
         $params = array(
             'action' => 'edit',
@@ -611,10 +639,18 @@ class Api
      * @param $old Name of page to move.
      * @param $new New page title.
      * @param $reason Move summary to use.
+     * @param $checkrun Verify the user's /Run page state (Default true)
      **/
-    public function move($old, $new, $reason)
+    public function move($old, $new, $reason, $checkrun = true)
     {
         global $logger;
+
+        if ($checkrun === true && !$this->allowedToRun()) {
+            $logger->addWarning('Run page prevented move (' .
+                                $old . ' -> ' . $new . ')');
+            return false;
+        }
+
         $params = array(
             'action' => 'move',
             'format' => 'php',
@@ -645,10 +681,18 @@ class Api
      * @param $user Username of last edit to the page to rollback.
      * @param $reason Edit summary to use for rollback.
      * @param $token Rollback token.  If not given, it will be fetched.  (Default null)
+     * @param $checkrun Verify the user's /Run page state (Default true)
      **/
-    public function rollback($title, $user, $reason, $token = null)
+    public function rollback($title, $user, $reason, $token = null, $checkrun = true)
     {
         global $logger;
+
+        if ($checkrun === true && !$this->allowedToRun()) {
+            $logger->addWarning('Run page prevented rollback of ' .
+                                $title . ' (' . $user . ')');
+            return false;
+        }
+
         $x = $this->http->get($this->apiurl . '?action=query&meta=tokens&type=rollback&format=php');
         $x = unserialize($x);
 
