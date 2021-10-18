@@ -147,14 +147,14 @@ class Http
             if (array_key_exists('error', $response)) {
                 $caller = (new \Exception())->getTrace()[1]['function'];
                 $this->logger->addError($caller . ' API Error: ' .
-                                        var_dump($response['error']));
+                                        var_export($response['error'], true));
             }
 
             // Handle warnings
             if (array_key_exists('warnings', $response)) {
                 $caller = (new \Exception())->getTrace()[1]['function'];
                 $this->logger->addWarning($caller . ' API Warnings: ' .
-                                          var_dump($response['warnings']));
+                                          var_export($response['warnings'], true));
             }
         }
 
