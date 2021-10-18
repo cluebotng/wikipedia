@@ -44,7 +44,7 @@ class Api
             if ($logger !== null) {
                 $logger->addWarning('No HTTP instance passed, creating a new one');
             }
-            $this->http = new \Wikipedia\Http();
+            $this->http = new \Wikipedia\Http($logger);
         }
         $this->logger = $logger;
     }
@@ -465,7 +465,7 @@ class Api
         $checkrun = true
     ) {
         global $logger;
-        $wpq = new WikipediaQuery();
+        $wpq = new \Wikipedia\Query($this->http, $this->logger);
         $wpq->queryurl = str_replace('api.php', 'query.php', $this->apiurl);
 
         $params = array(
