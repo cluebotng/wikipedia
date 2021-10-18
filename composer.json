@@ -1,0 +1,26 @@
+{
+    "name": "cluebotng/wikipedia",
+    "description": "ClueBot Wikipedia API Helpers",
+    "require-dev": {
+        "overtrue/phplint": "@stable",
+        "squizlabs/php_codesniffer": "@stable",
+        "phpmd/phpmd" : "@stable",
+        "phpunit/phpunit": "^8.5",
+        "monolog/monolog": "^1.17"
+    },
+    "require": {
+      "php": ">=7.2"
+    },
+    "config": {
+        "lock": false,
+        "sort-packages": true,
+        "platform-check": false
+    },
+    "autoload": {
+        "psr-4": {"Wikipedia\\": "src/Wikipedia"}
+    },
+    "autoload-dev": {
+        "psr-4": {"Wikipedia\\": "tests/Wikipedia"}
+    },
+    "license": "GNU General Public License"
+}
