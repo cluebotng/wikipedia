@@ -45,7 +45,7 @@ class Index
             if ($logger !== null) {
                 $logger->addWarning('No HTTP instance passed, creating a new one');
             }
-            $this->http = new \Wikipedia\Http();
+            $this->http = new \Wikipedia\Http($logger);
         }
         $this->logger = $logger;
     }
@@ -67,9 +67,9 @@ class Index
      **/
     public function post($page, $data, $summery = '', $minor = false, $rv = null, $bot = true)
     {
-        $wpq = new \Wikipedia\Query();
+        $wpq = new \Wikipedia\Query($this->http, $this->logger);
         $wpq->queryurl = str_replace('index.php', 'query.php', $this->indexurl);
-        $wpapi = new \Wikipedia\Api();
+        $wpapi = new \Wikipedia\Api($this->http, $this->logger);
         $wpapi->apiurl = str_replace('index.php', 'api.php', $this->indexurl);
 
         if ((!$this->edittoken) or ($this->edittoken == '')) {
@@ -302,7 +302,7 @@ class Index
     public function rollback($title, $user, $reason = null, $token = null, $bot = true)
     {
         if (($token == null) or (!$token)) {
-            $wpapi = new \Wikipedia\Api();
+            $wpapi = new \Wikipedia\Api($this->http, $this->logger);
             $wpapi->apiurl = str_replace('index.php', 'api.php', $this->indexurl);
             $token = $wpapi->revisions($title, 1, 'older', false, null, true);
             if ($token[0]['user'] == $user) {
@@ -337,7 +337,7 @@ class Index
      **/
     public function move($old, $new, $reason)
     {
-        $wpapi = new \Wikipedia\Api();
+        $wpapi = new \Wikipedia\Api($this->http, $this->logger);
         $wpapi->apiurl = str_replace('index.php', 'api.php', $this->indexurl);
         if ((!$this->edittoken) or ($this->edittoken == '')) {
             $this->edittoken = $wpapi->getedittoken();
@@ -410,7 +410,7 @@ class Index
      **/
     public function email($user, $subject, $body)
     {
-        $wpapi = new \Wikipedia\Api();
+        $wpapi = new \Wikipedia\Api($this->http, $this->logger);
         $wpapi->apiurl = str_replace('index.php', 'api.php', $this->indexurl);
         if ((!$this->edittoken) or ($this->edittoken == '')) {
             $this->edittoken = $wpapi->getedittoken();

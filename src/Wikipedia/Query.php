@@ -43,10 +43,10 @@ class Query
             if ($logger !== null) {
                 $logger->addWarning('No HTTP instance passed, creating a new one');
             }
-            $this->http = new \Wikipedia\Http();
+            $this->http = new \Wikipedia\Http($logger);
         }
 
-        $this->api = new \Wikipedia\Api($http);
+        $this->api = new \Wikipedia\Api($this->http, $logger);
         $this->logger = $logger;
     }
 
