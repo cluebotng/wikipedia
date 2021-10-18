@@ -519,7 +519,7 @@ class Api
     public function getLoginToken()
     {
         $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=php' .
-                              '&meta=tokens&type=login');
+                              '&action=query&meta=tokens&type=login');
         $x = $this->http->unserialize($x);
 
         return $x['query']['tokens']['logintoken'];
