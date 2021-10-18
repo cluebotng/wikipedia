@@ -106,13 +106,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=recentchanges&rcprop=user|comment' .
             '|flags|timestamp|title|ids|sizes&format=php&rclimit=' . $count . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('recentchanges API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
-
+        $x = $this->http->unserialize($x);
         return $x['query']['recentchanges'];
     }
 
@@ -152,13 +146,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=search&format=php&srsearch=' .
             urlencode($search) . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('search API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
-
+        $x = $this->http->unserialize($x);
         return $x['query']['search'];
     }
 
@@ -210,13 +198,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&format=php&list=logevents&leprop=ids|' .
             'title|type|user|timestamp|comment|details' . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('logs API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
-
+        $x = $this->http->unserialize($x);
         return $x['query']['logevents'];
     }
 
@@ -242,13 +224,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&format=php&list=usercontribs&ucuser=' .
             urlencode($user) . '&uclimit=' . urlencode($count) . '&ucdir=' . urlencode($dir) . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('usercontribs API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
-
+        $x = $this->http->unserialize($x);
         if (array_key_exists('ucstart', $x['query-continue']['usercontribs'])) {
             $continue = $x['query-continue']['usercontribs']['ucstart'];
         } else {
@@ -282,12 +258,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=allusers&format=php&auprop=' .
             'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('users API returned warnings: ' . var_export($x['warnings'], true));
-        }
-
+        $x = $this->http->unserialize($x);
         $continue = $x['query-continue']['allusers']['aufrom'];
         if (($requirestart == true) and ($x['query']['allusers'][0]['name'] != $start)) {
             return false;
@@ -317,12 +288,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=categorymembers&cmtitle=' .
             urlencode($category) . '&format=php&cmlimit=' . $count . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('categorymembers API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         $continue = $x['query-continue']['categorymembers']['cmcontinue'];
 
@@ -360,12 +326,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=' .
             'allcategories&acprop=size&format=php' . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('listcategories API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         $start = $x['query-continue']['allcategories']['acfrom'];
 
@@ -398,12 +359,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=backlinks&bltitle=' .
             urlencode($page) . '&format=php&bllimit=' . $count . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('backlinks API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         $continue = $x['query-continue']['backlinks']['blcontinue'];
 
@@ -430,12 +386,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=embeddedin&eititle=' .
             urlencode($page) . '&format=php&eilimit=' . $count . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('embeddedin API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         $continue = $x['query-continue']['embeddedin']['eicontinue'];
 
@@ -462,12 +413,7 @@ class Api
             $this->apiurl . '?action=query&rawcontinue=1&list=allpages&apprefix=' .
             urlencode($prefix) . '&format=php&aplimit=' . $count . $append
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('listprefix API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         $continue = $x['query-continue']['allpages']['apfrom'];
 
@@ -498,12 +444,13 @@ class Api
         $wpEdittime = null,
         $checkrun = true
     ) {
-        global $logger;
         $wpq = new \Wikipedia\Query($this->http, $this->logger);
         $wpq->queryurl = str_replace('api.php', 'query.php', $this->apiurl);
 
         if ($checkrun === true && !$this->allowedToRun()) {
-            $logger->addWarning('Run page prevented edit');
+            if ($this->logger !== null) {
+                $this->logger->addWarning('Run page prevented edit (' . $page . ')');
+            }
             return false;
         }
 
@@ -533,12 +480,7 @@ class Api
             $this->logger->addDebug($x);
         }
 
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('edit API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         if ($x['edit']['result'] == 'Success') {
             return true;
@@ -568,12 +510,7 @@ class Api
             '&action=query&meta=tokens&type=csrf&titles=' .
             urlencode($title)
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('gettoken API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         return $x['query']['tokens']['csrftoken'];
     }
@@ -586,7 +523,6 @@ class Api
      **/
     public function login($user, $pass)
     {
-        global $logger;
         $this->user = $user;
         $this->pass = $pass;
         $x = $this->http->post(
@@ -598,12 +534,7 @@ class Api
             $this->logger->addDebug($x);
         }
 
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('login API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         if ($x['login']['result'] == 'Success') {
             return true;
@@ -618,12 +549,7 @@ class Api
                 $this->logger->addDebug($x);
             }
 
-            $x = unserialize($x);
-
-            if ($this->logger !== null && isset($x['warnings'])) {
-                $this->logger->addWarning('login API returned warnings: ' .
-                                    var_export($x['warnings'], true));
-            }
+            $x = $this->http->unserialize($x);
 
             if ($x['login']['result'] == 'Success') {
                 return true;
@@ -643,11 +569,11 @@ class Api
      **/
     public function move($old, $new, $reason, $checkrun = true)
     {
-        global $logger;
-
         if ($checkrun === true && !$this->allowedToRun()) {
-            $logger->addWarning('Run page prevented move (' .
-                                $old . ' -> ' . $new . ')');
+            if ($this->logger !== null) {
+                $this->logger->addWarning('Run page prevented move (' .
+                                          $old . ' -> ' . $new . ')');
+            }
             return false;
         }
 
@@ -666,12 +592,7 @@ class Api
             $this->logger->addDebug($x);
         }
 
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('move API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $this->http->unserialize($x);  // this emits warnings if needed
     }
 
     /**
@@ -685,21 +606,16 @@ class Api
      **/
     public function rollback($title, $user, $reason, $token = null, $checkrun = true)
     {
-        global $logger;
-
         if ($checkrun === true && !$this->allowedToRun()) {
-            $logger->addWarning('Run page prevented rollback of ' .
-                                $title . ' (' . $user . ')');
+            if ($this->logger !== null) {
+                $this->logger->addWarning('Run page prevented rollback of ' .
+                                          $title . ' (' . $user . ')');
+            }
             return false;
         }
 
         $x = $this->http->get($this->apiurl . '?action=query&meta=tokens&type=rollback&format=php');
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('rollback API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         $token = $x['query']['tokens']['rollbacktoken'];
 
@@ -717,12 +633,7 @@ class Api
         }
 
         $x = $this->http->post($this->apiurl, $params);
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('rollback API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         return (isset($x['rollback']['summary']) and isset($x['rollback']['revid']) and $x['rollback']['revid'])
             ? true
@@ -760,12 +671,7 @@ class Api
             (($revid !== null) ? '&rvstartid=' . urlencode($revid) : '') .
             (($redirects == true) ? '&redirects' : '')
         );
-        $x = unserialize($x);
-
-        if ($this->logger !== null && isset($x['warnings'])) {
-            $this->logger->addWarning('revisions API returned warnings: ' .
-                                var_export($x['warnings'], true));
-        }
+        $x = $this->http->unserialize($x);
 
         if ($revid !== null) {
             $found = false;
