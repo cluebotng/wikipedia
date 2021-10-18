@@ -216,7 +216,11 @@ class Api
                                 var_export($x['warnings'], true));
         }
 
-        $continue = $x['query-continue']['usercontribs']['ucstart'];
+        if (array_key_exists('ucstart', $x['query-continue']['usercontribs'])) {
+            $continue = $x['query-continue']['usercontribs']['ucstart'];
+        } else {
+            $continue = null;
+        }
 
         return $x['query']['usercontribs'];
     }
