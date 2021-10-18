@@ -476,10 +476,6 @@ class Api
         }
 
         $x = $this->http->post($this->apiurl, $params);
-        if ($this->logger !== null) {
-            $this->logger->addDebug($x);
-        }
-
         $x = $this->http->unserialize($x);
 
         if ($x['edit']['result'] == 'Success') {
@@ -516,6 +512,21 @@ class Api
     }
 
     /**
+     * This function returns a login token.
+     *
+     * @return A login token
+     **/
+    public function getLoginToken()
+    {
+        $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=php' .
+                              '&meta=tokens&type=login');
+        $x = $this->http->unserialize($x);
+
+        return $x['query']['tokens']['logintoken'];
+    }
+
+
+    /**
      * This function takes a username and password and logs you into wikipedia.
      *
      * @param $user Username to login as.
@@ -527,36 +538,14 @@ class Api
         $this->pass = $pass;
         $x = $this->http->post(
             $this->apiurl . '?action=login&format=php',
-            array('lgname' => $user, 'lgpassword' => $pass)
+            array('lgname' => $user,
+                  'lgpassword' => $pass,
+                  'lgtoken' => $this->getLoginToken())
         );
-
-        if ($this->logger !== null) {
-            $this->logger->addDebug($x);
-        }
 
         $x = $this->http->unserialize($x);
 
-        if ($x['login']['result'] == 'Success') {
-            return true;
-        }
-        if ($x['login']['result'] == 'NeedToken') {
-            $x = $this->http->post(
-                $this->apiurl . '?action=login&format=php',
-                array('lgname' => $user, 'lgpassword' => $pass, 'lgtoken' => $x['login']['token'])
-            );
-
-            if ($this->logger !== null) {
-                $this->logger->addDebug($x);
-            }
-
-            $x = $this->http->unserialize($x);
-
-            if ($x['login']['result'] == 'Success') {
-                return true;
-            }
-        }
-
-        return false;
+        return $x['login']['result'] == 'Success';
     }
 
     /**
@@ -587,11 +576,6 @@ class Api
         );
 
         $x = $this->http->post($this->apiurl, $params);
-
-        if ($this->logger !== null) {
-            $this->logger->addDebug($x);
-        }
-
         $this->http->unserialize($x);  // this emits warnings if needed
     }
 
