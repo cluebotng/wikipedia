@@ -136,6 +136,10 @@ class Http
      **/
     public function unserialize($response)
     {
+        if ($this->logger !== null) {
+            $this->logger->addDebug('Decoding response: ' . $response);
+        }
+
         $response = unserialize($response);
 
         if ($this->logger !== null) {

@@ -476,10 +476,6 @@ class Api
         }
 
         $x = $this->http->post($this->apiurl, $params);
-        if ($this->logger !== null) {
-            $this->logger->addDebug($x);
-        }
-
         $x = $this->http->unserialize($x);
 
         if ($x['edit']['result'] == 'Success') {
@@ -523,7 +519,7 @@ class Api
     public function getLoginToken()
     {
         $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=php' .
-                              '?action=query&meta=tokens&type=login');
+                              '&meta=tokens&type=login');
         $x = $this->http->unserialize($x);
 
         return $x['query']['tokens']['logintoken'];
@@ -546,10 +542,6 @@ class Api
                   'lgpassword' => $pass,
                   'lgtoken' => $this->getLoginToken())
         );
-
-        if ($this->logger !== null) {
-            $this->logger->addDebug($x);
-        }
 
         $x = $this->http->unserialize($x);
 
@@ -584,11 +576,6 @@ class Api
         );
 
         $x = $this->http->post($this->apiurl, $params);
-
-        if ($this->logger !== null) {
-            $this->logger->addDebug($x);
-        }
-
         $this->http->unserialize($x);  // this emits warnings if needed
     }
 
