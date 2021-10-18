@@ -468,6 +468,17 @@ class Api
         $wpq = new WikipediaQuery();
         $wpq->queryurl = str_replace('api.php', 'query.php', $this->apiurl);
 
+        if ($checkrun == true) {
+            if (
+                !preg_match(
+                    '/(yes|enable|true)/iS',
+                    ((isset($run)) ? $run : $wpq->getpage('User:' . $user . '/Run'))
+                )
+            ) {
+                return false;
+            }
+        } /* Check /Run page */
+
         $params = array(
             'action' => 'edit',
             'format' => 'php',
