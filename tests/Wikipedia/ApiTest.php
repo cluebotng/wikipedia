@@ -47,4 +47,12 @@ class ApiTest extends \PHPUnit\Framework\TestCase
         $ret = $api->usercontribs('ClueBot NG');
         $this->assertEquals(50, count($api->usercontribs('ClueBot NG', 50)));
     }
+
+    public function testAllowedToRun()
+    {
+        $api = new Api();
+
+        // We are not logged in, so this is always false
+        $this->assertFalse($api->allowedToRun());
+    }
 }
