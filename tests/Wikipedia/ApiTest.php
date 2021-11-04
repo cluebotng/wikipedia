@@ -55,4 +55,12 @@ class ApiTest extends \PHPUnit\Framework\TestCase
         // We are not logged in, so this is always false
         $this->assertFalse($api->allowedToRun());
     }
+
+    public function testUserLoggedOut()
+    {
+        $api = new Api();
+
+        // We are not logged in, so this is always false
+        $this->assertFalse($api->loggedin());
+    }
 }
