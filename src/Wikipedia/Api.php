@@ -549,6 +549,27 @@ class Api
     }
 
     /**
+     * Check if we are currently authenticated.
+     *
+     * This function checks for either anonymous,
+     * where $this->login has never been called,
+     * or authenticated, where $this->login set
+     * the username to check for.
+     **/
+    public function loggedin()
+    {
+        $x = $this->http->get($this->apiurl .
+                              '?action=query&meta=userinfo&format=php');
+        $x = $this->http->unserialize($x);
+
+        if (!$this->user) {
+            return !array_key_exists('anon', $x['query']['userinfo']);
+        }
+
+        return $x['query']['userinfo']['name'] === $this->user;
+    }
+
+    /**
      * Moves a page.
      *
      * @param $old Name of page to move.
