@@ -556,13 +556,8 @@ class Api
      **/
     public function getLoginToken()
     {
-        $append = '';
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
-
         $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=php' .
-                              '&action=query&meta=tokens&type=login' . $append);
+                              '&action=query&meta=tokens&type=login');
         $x = $this->http->unserialize($x);
 
         return $x['query']['tokens']['logintoken'];
