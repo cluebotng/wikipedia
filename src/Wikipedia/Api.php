@@ -27,6 +27,7 @@ class Api
     private $http;
     private $user;
     private $pass;
+    private $assert_auth;
     private $logger;
 
     /**
@@ -102,6 +103,9 @@ class Api
         if ($namespace !== null) {
             $append .= '&rcnamespace=' . urlencode($namespace);
         }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=recentchanges&rcprop=user|comment' .
             '|flags|timestamp|title|ids|sizes&format=php&rclimit=' . $count . $append
@@ -141,6 +145,9 @@ class Api
             $append .= '&srredirects=1';
         } else {
             $append .= '&srredirects=0';
+        }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
         }
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=search&format=php&srsearch=' .
@@ -194,6 +201,9 @@ class Api
         if ($dir != null) {
             $append .= '&ledir=' . urlencode($dir);
         }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&format=php&list=logevents&leprop=ids|' .
             'title|type|user|timestamp|comment|details' . $append
@@ -215,10 +225,12 @@ class Api
      **/
     public function usercontribs($user, $count = 50, &$continue = null, $dir = 'older')
     {
+        $append = '';
         if ($continue != null) {
-            $append = '&ucstart=' . urlencode($continue);
-        } else {
-            $append = '';
+            $append .= '&ucstart=' . urlencode($continue);
+        }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
         }
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&format=php&list=usercontribs&ucuser=' .
@@ -254,6 +266,9 @@ class Api
         if ($group != null) {
             $append .= '&augroup=' . urlencode($group);
         }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=allusers&format=php&auprop=' .
             'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
@@ -278,10 +293,12 @@ class Api
      **/
     public function categorymembers($category, $count = 500, &$continue = null)
     {
+        $append = '';
         if ($continue != null) {
-            $append = '&cmcontinue=' . urlencode($continue);
-        } else {
-            $append = '';
+            $append .= '&cmcontinue=' . urlencode($continue);
+        }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
         }
         $category = 'Category:' . str_ireplace('category:', '', $category);
         $x = $this->http->get(
@@ -321,6 +338,9 @@ class Api
         if ($prefix != null) {
             $append .= '&acprefix=' . urlencode($prefix);
         }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
 
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=' .
@@ -354,6 +374,9 @@ class Api
         if ($filter != null) {
             $append .= '&blfilterredir=' . urlencode($filter);
         }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
 
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=backlinks&bltitle=' .
@@ -377,11 +400,14 @@ class Api
      **/
     public function embeddedin($page, $count = 500, &$continue = null)
     {
+        $append = '';
         if ($continue != null) {
-            $append = '&eicontinue=' . urlencode($continue);
-        } else {
-            $append = '';
+            $append .= '&eicontinue=' . urlencode($continue);
         }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
+
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=embeddedin&eititle=' .
             urlencode($page) . '&format=php&eilimit=' . $count . $append
@@ -409,6 +435,10 @@ class Api
         if ($continue != null) {
             $append .= '&apfrom=' . urlencode($continue);
         }
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
+
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=allpages&apprefix=' .
             urlencode($prefix) . '&format=php&aplimit=' . $count . $append
@@ -474,6 +504,9 @@ class Api
         if ($wpEdittime !== null) {
             $params['basetimestamp'] = $wpEdittime;
         }
+        if ($this->assert_auth) {
+            $params['assert'] = 'user';
+        }
 
         $x = $this->http->post($this->apiurl, $params);
         $x = $this->http->unserialize($x);
@@ -482,7 +515,7 @@ class Api
             return true;
         }
         if ($x['error']['code'] == 'badtoken') {
-            if ($this->login($this->user, $this->pass)) {
+            if ($this->login($this->user, $this->pass, $this->assert_auth)) {
                 return $this->edit($page, $data, $summary, $minor, $bot, $wpStarttime, $wpEdittime, $checkrun);
             } else {
                 return false;
@@ -501,10 +534,15 @@ class Api
      **/
     public function gettoken($title)
     {
+        $append = '';
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
+
         $x = $this->http->get(
             $this->apiurl . '?rawcontinue=1&format=php' .
             '&action=query&meta=tokens&type=csrf&titles=' .
-            urlencode($title)
+            urlencode($title) . $append
         );
         $x = $this->http->unserialize($x);
 
@@ -518,8 +556,13 @@ class Api
      **/
     public function getLoginToken()
     {
+        $append = '';
+        if ($this->assert_auth) {
+            $append .= '&assert=user';
+        }
+
         $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=php' .
-                              '&action=query&meta=tokens&type=login');
+                              '&action=query&meta=tokens&type=login' . $append);
         $x = $this->http->unserialize($x);
 
         return $x['query']['tokens']['logintoken'];
@@ -531,11 +574,13 @@ class Api
      *
      * @param $user Username to login as.
      * @param $pass Password that corrisponds to the username.
+     * @param $assert_auth Assert that we are logged in for requests.
      **/
-    public function login($user, $pass)
+    public function login($user, $pass, $assert_auth = true)
     {
         $this->user = $user;
         $this->pass = $pass;
+        $this->assert_auth = $assert_auth;
         $x = $this->http->post(
             $this->apiurl . '?action=login&format=php',
             array('lgname' => $user,
@@ -595,6 +640,9 @@ class Api
             'token' => $this->gettoken($old),
             'reason' => $reason,
         );
+        if ($this->assert_auth) {
+            $params['assert'] = 'user';
+        }
 
         $x = $this->http->post($this->apiurl, $params);
         $this->http->unserialize($x);  // this emits warnings if needed
@@ -632,6 +680,9 @@ class Api
             'summary' => $reason,
             'token' => $token,
         );
+        if ($this->assert_auth) {
+            $params['assert'] = 'user';
+        }
 
         if ($this->logger !== null) {
             $this->logger->addInfo('Posting to API: ' . var_export($params, true));
@@ -674,7 +725,8 @@ class Api
             urlencode($page) . '&rvlimit=' . urlencode($count) . '&rvprop=timestamp|ids|user|comment' .
             (($content) ? '|content' : '') . '&format=php&meta=userinfo&rvdir=' . urlencode($dir) .
             (($revid !== null) ? '&rvstartid=' . urlencode($revid) : '') .
-            (($redirects == true) ? '&redirects' : '')
+            (($redirects == true) ? '&redirects' : '') .
+            (($this->assert_auth) ? '&assert=user' : '')
         );
         $x = $this->http->unserialize($x);
 
