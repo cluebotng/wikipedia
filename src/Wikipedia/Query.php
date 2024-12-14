@@ -62,7 +62,7 @@ class Query
         $this->checkurl();
         $ret = $this->api->revisions($page, 1, 'older', true, null, true, false, false);
 
-        if (is_array($ret) && count($ret) > 0 && array_key_exists('*', $ret[0]['slots']['main'])) {
+        if (is_array($ret) && array_key_exists(0, $ret) && array_key_exists('*', $ret[0]['slots']['main'])) {
             return $ret[0]['slots']['main']['*'];
         }
     }
