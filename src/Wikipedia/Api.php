@@ -384,7 +384,15 @@ class Api
         );
         $x = $this->http->unserialize($x);
 
-        $continue = $x['query-continue']['backlinks']['blcontinue'];
+        if (
+            array_key_exists('query-continue', $x) &&
+            array_key_exists('backlinks', $x['query-continue']) &&
+            array_key_exists('blcontinue', $x['query-continue']['backlinks'])
+        ) {
+            $continue = $x['query-continue']['backlinks']['blcontinue'];
+        } else {
+            $continue = null;
+        }
 
         return $x['query']['backlinks'];
     }
