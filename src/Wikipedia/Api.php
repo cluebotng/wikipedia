@@ -788,20 +788,9 @@ class Api
             }
         }
 
-        foreach ($x['query']['pages'] as $key => $data) {
-            $data['revisions']['ns'] = $data['ns'];
-            $data['revisions']['title'] = $data['title'];
-            $data['revisions']['currentuser'] = $x['query']['userinfo']['name'];
-            if (
-                array_key_exists('query-continue', $x) &&
-                array_key_exists('revisions', $x['query-continue']) &&
-                array_key_exists('rvstartid', $x['query-continue']['revisions'])
-            ) {
-                $data['revisions']['continue'] = $x['query-continue']['revisions']['rvstartid'];
-            }
-            $data['revisions']['pageid'] = $key;
-
+        foreach (array_values($x['query']['pages']) as $data) {
             return $data['revisions'];
         }
+        return array();
     }
 }
