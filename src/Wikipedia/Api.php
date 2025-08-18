@@ -414,7 +414,15 @@ class Api
         );
         $x = $this->http->unserialize($x);
 
-        $continue = $x['query-continue']['embeddedin']['eicontinue'];
+        if (
+            array_key_exists('query-continue', $x) &&
+            array_key_exists('embeddedin', $x['query-continue']) &&
+            array_key_exists('eicontinue', $x['query-continue']['embeddedin'])
+        ) {
+            $continue = $x['query-continue']['embeddedin']['eicontinue'];
+        } else {
+            $continue = null;
+        }
 
         return $x['query']['embeddedin'];
     }
