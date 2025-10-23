@@ -57,6 +57,10 @@ class Api
      **/
     public function allowedToRun()
     {
+        if (!$this->user) {
+            return false;
+        }
+
         $ret = $this->revisions(
             'User:' . $this->user . '/Run',
             1,
