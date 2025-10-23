@@ -39,15 +39,15 @@ jobs:
 
       - name: PHP Lint
         run: |
-          ./composer.phar exec phplint -- --exclude=vendor/
+          composer exec phplint -- --exclude=vendor/
         if: matrix.target == 'phplint'
 
       - name: PHP Code Sniff
         run: |
-          ./composer.phar exec phpcs -- --standard=PSR12 --ignore=vendor/ .
+          composer exec phpcs -- --standard=PSR12 --ignore=vendor/ .
         if: matrix.target == 'phpcs'
 
       - name: PHP Unit Test
         run: |
-          ./composer.phar exec phpunit -- tests/
+          composer exec phpunit -- tests/
         if: matrix.target == 'phpunit'
