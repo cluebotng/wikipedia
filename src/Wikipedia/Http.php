@@ -91,7 +91,7 @@ class Http
         $data = curl_exec($this->ch);
 
         if ($this->logger !== null) {
-            $this->logger->addDebug('POST: ' . $url .
+            $this->logger->debug('POST: ' . $url .
                                     ' (' . (microtime(true) - $time) . ' s)' .
                                     ' (' . strlen($data) . " b)");
         }
@@ -119,7 +119,7 @@ class Http
         $data = curl_exec($this->ch);
 
         if ($this->logger !== null) {
-            $this->logger->addDebug('GET: ' . $url .
+            $this->logger->debug('GET: ' . $url .
                                     ' (' . (microtime(true) - $time) . ' s)' .
                                     '(' . strlen($data) . ' b) (' .
             curl_getinfo($this->ch, CURLINFO_HTTP_CODE) . " code)");
@@ -137,7 +137,7 @@ class Http
     public function unserialize($response)
     {
         if ($this->logger !== null) {
-            $this->logger->addDebug('Decoding response: ' . $response);
+            $this->logger->debug('Decoding response: ' . $response);
         }
 
         $response = unserialize($response);
@@ -146,14 +146,14 @@ class Http
             // Handle errors
             if (array_key_exists('error', $response)) {
                 $caller = (new \Exception())->getTrace()[1]['function'];
-                $this->logger->addError($caller . ' API Error: ' .
+                $this->logger->error($caller . ' API Error: ' .
                                         var_export($response['error'], true));
             }
 
             // Handle warnings
             if (array_key_exists('warnings', $response)) {
                 $caller = (new \Exception())->getTrace()[1]['function'];
-                $this->logger->addWarning($caller . ' API Warnings: ' .
+                $this->logger->warning($caller . ' API Warnings: ' .
                                           var_export($response['warnings'], true));
             }
         }

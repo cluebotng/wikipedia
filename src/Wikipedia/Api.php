@@ -43,7 +43,7 @@ class Api
         } else {
             // This may overwrite existing cookies with paralell usage
             if ($logger !== null) {
-                $logger->addWarning('No HTTP instance passed, creating a new one');
+                $logger->warning('No HTTP instance passed, creating a new one');
             }
             $this->http = new \Wikipedia\Http($logger);
         }
@@ -507,7 +507,7 @@ class Api
 
         if ($checkrun === true && !$this->allowedToRun()) {
             if ($this->logger !== null) {
-                $this->logger->addWarning('Run page prevented edit (' . $page . ')');
+                $this->logger->warning('Run page prevented edit (' . $page . ')');
             }
             return false;
         }
@@ -649,7 +649,7 @@ class Api
     {
         if ($checkrun === true && !$this->allowedToRun()) {
             if ($this->logger !== null) {
-                $this->logger->addWarning('Run page prevented move (' .
+                $this->logger->warning('Run page prevented move (' .
                                           $old . ' -> ' . $new . ')');
             }
             return false;
@@ -684,7 +684,7 @@ class Api
     {
         if ($checkrun === true && !$this->allowedToRun()) {
             if ($this->logger !== null) {
-                $this->logger->addWarning('Run page prevented rollback of ' .
+                $this->logger->warning('Run page prevented rollback of ' .
                                           $title . ' (' . $user . ')');
             }
             return false;
@@ -708,7 +708,7 @@ class Api
         }
 
         if ($this->logger !== null) {
-            $this->logger->addInfo('Posting to API: ' . var_export($params, true));
+            $this->logger->info('Posting to API: ' . var_export($params, true));
         }
 
         $x = $this->http->post($this->apiurl, $params);
