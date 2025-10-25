@@ -41,7 +41,7 @@ class Query
         } else {
             // This may overwrite existing cookies with paralell usage
             if ($logger !== null) {
-                $logger->addWarning('No HTTP instance passed, creating a new one');
+                $logger->warning('No HTTP instance passed, creating a new one');
             }
             $this->http = new \Wikipedia\Http($logger);
         }

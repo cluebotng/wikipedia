@@ -6,7 +6,7 @@
         "squizlabs/php_codesniffer": "@stable",
         "phpmd/phpmd" : "@stable",
         "phpunit/phpunit": "^12.0",
-        "monolog/monolog": "^1.17"
+        "monolog/monolog": "^3.0"
     },
     "require": {
       "php": ">=7.2"

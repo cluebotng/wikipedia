@@ -43,7 +43,7 @@ class Index
         } else {
             // This may overwrite existing cookies with paralell usage
             if ($logger !== null) {
-                $logger->addWarning('No HTTP instance passed, creating a new one');
+                $logger->warning('No HTTP instance passed, creating a new one');
             }
             $this->http = new \Wikipedia\Http($logger);
         }
@@ -240,10 +240,10 @@ class Index
                     return $this->diff($title, $oldid, $id, false);
                 } else {
                     if ($this->logger !== null) {
-                        $this->logger->addInfo('OLDID as detected: ' . $m[0][2] . ' Wanted: ' . $oldid);
-                        $this->logger->addInfo('NEWID as detected: ' . $m[1][2] . ' Wanted: ' . $id);
-                        $this->logger->addDebug($html);
-                        $this->logger->addError("Revision error");
+                        $this->logger->info('OLDID as detected: ' . $m[0][2] . ' Wanted: ' . $oldid);
+                        $this->logger->info('NEWID as detected: ' . $m[1][2] . ' Wanted: ' . $id);
+                        $this->logger->debug($html);
+                        $this->logger->error("Revision error");
                     }
                     die();
                 }
