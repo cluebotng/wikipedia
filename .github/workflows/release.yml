@@ -1,22 +1,14 @@
 name: Release
-on:
-  push: {tags: ['*']}
+on: { push: { tags: [ 'v*' ] } }
 permissions:
   deployments: write
   contents: write
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v5
-
-      - name: Package the source
-        run: |
-          tar -cvf api.tar.gz *
-
-      - name: Crease a release
-        uses: ncipollo/release-action@v1
+      - uses: cluebotng/ci-create-release@main
         with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          artifacts: "api.tar.gz"
+          repo_name: '${{ github.repository }}'
+          tag_name: '${{ github.ref }}'
+          gh_app_key: '${{ secrets.CI_RELEASE_MAKER_APP_KEY }}'
