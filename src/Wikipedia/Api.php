@@ -112,7 +112,7 @@ class Api
         }
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=recentchanges&rcprop=user|comment' .
-            '|flags|timestamp|title|ids|sizes&format=php&rclimit=' . $count . $append
+            '|flags|timestamp|title|ids|sizes&format=json&rclimit=' . $count . $append
         );
         $x = $this->http->unserialize($x);
         return $x['query']['recentchanges'];
@@ -154,7 +154,7 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->http->get(
-            $this->apiurl . '?action=query&rawcontinue=1&list=search&format=php&srsearch=' .
+            $this->apiurl . '?action=query&rawcontinue=1&list=search&format=json&srsearch=' .
             urlencode($search) . $append
         );
         $x = $this->http->unserialize($x);
@@ -209,7 +209,7 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->http->get(
-            $this->apiurl . '?action=query&rawcontinue=1&format=php&list=logevents&leprop=ids|' .
+            $this->apiurl . '?action=query&rawcontinue=1&format=json&list=logevents&leprop=ids|' .
             'title|type|user|timestamp|comment|details' . $append
         );
         $x = $this->http->unserialize($x);
@@ -237,7 +237,7 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->http->get(
-            $this->apiurl . '?action=query&rawcontinue=1&format=php&list=usercontribs&ucuser=' .
+            $this->apiurl . '?action=query&rawcontinue=1&format=json&list=usercontribs&ucuser=' .
             urlencode($user) . '&uclimit=' . urlencode($count) . '&ucdir=' . urlencode($dir) . $append
         );
         $x = $this->http->unserialize($x);
@@ -274,7 +274,7 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->http->get(
-            $this->apiurl . '?action=query&rawcontinue=1&list=allusers&format=php&auprop=' .
+            $this->apiurl . '?action=query&rawcontinue=1&list=allusers&format=json&auprop=' .
             'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
         );
         $x = $this->http->unserialize($x);
@@ -307,7 +307,7 @@ class Api
         $category = 'Category:' . str_ireplace('category:', '', $category);
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=categorymembers&cmtitle=' .
-            urlencode($category) . '&format=php&cmlimit=' . $count . $append
+            urlencode($category) . '&format=json&cmlimit=' . $count . $append
         );
         $x = $this->http->unserialize($x);
 
@@ -348,7 +348,7 @@ class Api
 
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=' .
-            'allcategories&acprop=size&format=php' . $append
+            'allcategories&acprop=size&format=json' . $append
         );
         $x = $this->http->unserialize($x);
 
@@ -384,7 +384,7 @@ class Api
 
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=backlinks&bltitle=' .
-            urlencode($page) . '&format=php&bllimit=' . $count . $append
+            urlencode($page) . '&format=json&bllimit=' . $count . $append
         );
         $x = $this->http->unserialize($x);
 
@@ -422,7 +422,7 @@ class Api
 
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=embeddedin&eititle=' .
-            urlencode($page) . '&format=php&eilimit=' . $count . $append
+            urlencode($page) . '&format=json&eilimit=' . $count . $append
         );
         $x = $this->http->unserialize($x);
 
@@ -461,7 +461,7 @@ class Api
 
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&list=allpages&apprefix=' .
-            urlencode($prefix) . '&format=php&aplimit=' . $count . $append
+            urlencode($prefix) . '&format=json&aplimit=' . $count . $append
         );
         $x = $this->http->unserialize($x);
 
@@ -514,7 +514,7 @@ class Api
 
         $params = array(
             'action' => 'edit',
-            'format' => 'php',
+            'format' => 'json',
             'title' => $page,
             'text' => $data,
             'token' => $this->gettoken($page),
@@ -568,7 +568,7 @@ class Api
         }
 
         $x = $this->http->get(
-            $this->apiurl . '?rawcontinue=1&format=php' .
+            $this->apiurl . '?rawcontinue=1&format=json' .
             '&action=query&meta=tokens&type=csrf&titles=' .
             urlencode($title) . $append
         );
@@ -584,7 +584,7 @@ class Api
      **/
     public function getLoginToken()
     {
-        $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=php' .
+        $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=json' .
                               '&action=query&meta=tokens&type=login');
         $x = $this->http->unserialize($x);
 
@@ -605,7 +605,7 @@ class Api
         $this->pass = $pass;
         $this->assert_auth = $assert_auth;
         $x = $this->http->post(
-            $this->apiurl . '?action=login&format=php',
+            $this->apiurl . '?action=login&format=json',
             array('lgname' => $user,
                   'lgpassword' => $pass,
                   'lgtoken' => $this->getLoginToken())
@@ -627,7 +627,7 @@ class Api
     public function loggedin()
     {
         $x = $this->http->get($this->apiurl .
-                              '?action=query&meta=userinfo&format=php');
+                              '?action=query&meta=userinfo&format=json');
         $x = $this->http->unserialize($x);
 
         if (!$this->user) {
@@ -657,7 +657,7 @@ class Api
 
         $params = array(
             'action' => 'move',
-            'format' => 'php',
+            'format' => 'json',
             'from' => $old,
             'to' => $new,
             'token' => $this->gettoken($old),
@@ -690,14 +690,14 @@ class Api
             return false;
         }
 
-        $x = $this->http->get($this->apiurl . '?action=query&meta=tokens&type=rollback&format=php');
+        $x = $this->http->get($this->apiurl . '?action=query&meta=tokens&type=rollback&format=json');
         $x = $this->http->unserialize($x);
 
         $token = $x['query']['tokens']['rollbacktoken'];
 
         $params = array(
             'action' => 'rollback',
-            'format' => 'php',
+            'format' => 'json',
             'title' => $title,
             'user' => $user,
             'summary' => $reason,
@@ -746,7 +746,7 @@ class Api
         $x = $this->http->get(
             $this->apiurl . '?action=query&rawcontinue=1&prop=revisions&rvslots=main&titles=' .
             urlencode($page) . '&rvlimit=' . urlencode($count) . '&rvprop=timestamp|ids|user|comment' .
-            (($content) ? '|content' : '') . '&format=php&meta=userinfo&rvdir=' . urlencode($dir) .
+            (($content) ? '|content' : '') . '&format=json&meta=userinfo&rvdir=' . urlencode($dir) .
             (($revid !== null) ? '&rvstartid=' . urlencode($revid) : '') .
             (($redirects == true) ? '&redirects' : '') .
             (($this->assert_auth) ? '&assert=user' : '')
