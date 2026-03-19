@@ -166,7 +166,9 @@ class Http
      **/
     public function __destruct()
     {
-        curl_close($this->ch);
+        if (PHP_MAJOR_VERSION < 8) {
+            curl_close($this->ch);
+        }
         @unlink('/tmp/cluebot.wikipedia.http.cookies.' . $this->uid . '.dat');
     }
 }
