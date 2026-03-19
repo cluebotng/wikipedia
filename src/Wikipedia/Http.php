@@ -140,7 +140,7 @@ class Http
             $this->logger->debug('Decoding response: ' . $response);
         }
 
-        $response = unserialize($response);
+        $response = json_decode($response, true);
 
         if ($this->logger !== null) {
             // Handle errors
