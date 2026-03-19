@@ -5,8 +5,8 @@
         "overtrue/phplint": "@stable",
         "squizlabs/php_codesniffer": "@stable",
         "phpmd/phpmd" : "@stable",
-        "phpunit/phpunit": "^12.0",
-        "monolog/monolog": "^3.0"
+        "phpunit/phpunit": "@stable",
+        "monolog/monolog": "@stable"
     },
     "require": {
       "php": ">=7.2"
