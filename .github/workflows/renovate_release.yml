@@ -93,10 +93,3 @@ jobs:
               generate_release_notes: true,
             });
             console.log(`Created release for tag ${tag_name}`);
-
-  deploy:
-    needs: [generate-new-tag, create-release]
-    uses: ./.github/workflows/deploy.yml
-    with:
-      ref: 'refs/tags/${{ needs.generate-new-tag.outputs.tag_name }}'
-    secrets: inherit
