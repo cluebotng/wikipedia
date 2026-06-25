@@ -115,7 +115,7 @@ class Api
             '|flags|timestamp|title|ids|sizes&format=json&rclimit=' . $count . $append
         );
         $x = $this->http->unserialize($x);
-        return $x['query']['recentchanges'];
+        return $x['query']['recentchanges'] ?? [];
     }
 
     /**
@@ -158,7 +158,7 @@ class Api
             urlencode($search) . $append
         );
         $x = $this->http->unserialize($x);
-        return $x['query']['search'];
+        return $x['query']['search'] ?? [];
     }
 
     /**
@@ -213,7 +213,7 @@ class Api
             'title|type|user|timestamp|comment|details' . $append
         );
         $x = $this->http->unserialize($x);
-        return $x['query']['logevents'];
+        return $x['query']['logevents'] ?? [];
     }
 
     /**
@@ -241,13 +241,9 @@ class Api
             urlencode($user) . '&uclimit=' . urlencode($count) . '&ucdir=' . urlencode($dir) . $append
         );
         $x = $this->http->unserialize($x);
-        if (array_key_exists('ucstart', $x['query-continue']['usercontribs'])) {
-            $continue = $x['query-continue']['usercontribs']['ucstart'];
-        } else {
-            $continue = null;
-        }
+        $continue = $x['query-continue']['usercontribs']['ucstart'] ?? null;
 
-        return $x['query']['usercontribs'];
+        return $x['query']['usercontribs'] ?? [];
     }
 
     /**
@@ -278,12 +274,12 @@ class Api
             'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
         );
         $x = $this->http->unserialize($x);
-        $continue = $x['query-continue']['allusers']['aufrom'];
-        if (($requirestart == true) and ($x['query']['allusers'][0]['name'] != $start)) {
+        $continue = $x['query-continue']['allusers']['aufrom'] ?? null;
+        if ($requirestart == true && ($x['query']['allusers'][0]['name'] ?? null) != $start) {
             return false;
         }
 
-        return $x['query']['allusers'];
+        return $x['query']['allusers'] ?? [];
     }
 
     /**
@@ -311,9 +307,9 @@ class Api
         );
         $x = $this->http->unserialize($x);
 
-        $continue = $x['query-continue']['categorymembers']['cmcontinue'];
+        $continue = $x['query-continue']['categorymembers']['cmcontinue'] ?? null;
 
-        return $x['query']['categorymembers'];
+        return $x['query']['categorymembers'] ?? [];
     }
 
     /**
@@ -352,9 +348,9 @@ class Api
         );
         $x = $this->http->unserialize($x);
 
-        $start = $x['query-continue']['allcategories']['acfrom'];
+        $start = $x['query-continue']['allcategories']['acfrom'] ?? null;
 
-        return $x['query']['allcategories'];
+        return $x['query']['allcategories'] ?? [];
     }
 
     /**
@@ -398,7 +394,7 @@ class Api
             $continue = null;
         }
 
-        return $x['query']['backlinks'];
+        return $x['query']['backlinks'] ?? [];
     }
 
     /**
@@ -436,7 +432,7 @@ class Api
             $continue = null;
         }
 
-        return $x['query']['embeddedin'];
+        return $x['query']['embeddedin'] ?? [];
     }
 
     /**
@@ -475,7 +471,7 @@ class Api
             $continue = null;
         }
 
-        return $x['query']['allpages'];
+        return $x['query']['allpages'] ?? [];
     }
 
     /**
