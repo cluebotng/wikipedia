@@ -792,9 +792,12 @@ class Api
             }
         }
 
-        foreach (array_values($x['query']['pages']) as $data) {
-            return $data['revisions'];
+        if (!isset($x['query']['pages']) || !is_array($x['query']['pages'])) {
+            return [];
         }
-        return array();
+        foreach (array_values($x['query']['pages']) as $data) {
+            return $data['revisions'] ?? [];
+        }
+        return [];
     }
 }
