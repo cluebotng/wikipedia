@@ -142,15 +142,20 @@ class Http
 
         $response = json_decode($response, true);
 
+        if (!is_array($response)) {
+            if ($this->logger !== null) {
+                $this->logger->error('Failed to decode API response');
+            }
+            return [];
+        }
+
         if ($this->logger !== null) {
-            // Handle errors
             if (array_key_exists('error', $response)) {
                 $caller = (new \Exception())->getTrace()[1]['function'];
                 $this->logger->error($caller . ' API Error: ' .
                                         var_export($response['error'], true));
             }
 
-            // Handle warnings
             if (array_key_exists('warnings', $response)) {
                 $caller = (new \Exception())->getTrace()[1]['function'];
                 $this->logger->warning($caller . ' API Warnings: ' .
