@@ -535,10 +535,10 @@ class Api
         $x = $this->http->post($this->apiurl, $params);
         $x = $this->http->unserialize($x);
 
-        if ($x['edit']['result'] == 'Success') {
+        if (isset($x['edit']['result']) && $x['edit']['result'] == 'Success') {
             return true;
         }
-        if ($x['error']['code'] == 'badtoken') {
+        if (isset($x['error']['code']) && $x['error']['code'] == 'badtoken') {
             if ($this->login($this->user, $this->pass, $this->assert_auth)) {
                 return $this->edit($page, $data, $summary, $minor, $bot, $wpStarttime, $wpEdittime, $checkrun);
             } else {
@@ -570,7 +570,7 @@ class Api
         );
         $x = $this->http->unserialize($x);
 
-        return $x['query']['tokens']['csrftoken'];
+        return $x['query']['tokens']['csrftoken'] ?? null;
     }
 
     /**
@@ -584,7 +584,7 @@ class Api
                               '&action=query&meta=tokens&type=login');
         $x = $this->http->unserialize($x);
 
-        return $x['query']['tokens']['logintoken'];
+        return $x['query']['tokens']['logintoken'] ?? null;
     }
 
 
@@ -609,7 +609,7 @@ class Api
 
         $x = $this->http->unserialize($x);
 
-        return $x['login']['result'] == 'Success';
+        return isset($x['login']['result']) && $x['login']['result'] == 'Success';
     }
 
     /**
@@ -626,11 +626,15 @@ class Api
                               '?action=query&meta=userinfo&format=json');
         $x = $this->http->unserialize($x);
 
+        if (!isset($x['query']['userinfo'])) {
+            return false;
+        }
+
         if (!$this->user) {
             return !array_key_exists('anon', $x['query']['userinfo']);
         }
 
-        return $x['query']['userinfo']['name'] === $this->user;
+        return ($x['query']['userinfo']['name'] ?? null) === $this->user;
     }
 
     /**
@@ -689,7 +693,7 @@ class Api
         $x = $this->http->get($this->apiurl . '?action=query&meta=tokens&type=rollback&format=json');
         $x = $this->http->unserialize($x);
 
-        $token = $x['query']['tokens']['rollbacktoken'];
+        $token = $x['query']['tokens']['rollbacktoken'] ?? null;
 
         $params = array(
             'action' => 'rollback',
