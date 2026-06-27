@@ -708,7 +708,7 @@ class Api
         }
 
         if ($this->logger !== null) {
-            $this->logger->info('Posting to API: ' . var_export($params, true));
+            $this->logger->debug('Posting to API: ' . var_export($params, true));
         }
 
         $x = $this->http->post($this->apiurl, $params);
