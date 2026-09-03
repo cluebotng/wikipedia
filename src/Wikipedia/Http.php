@@ -173,6 +173,8 @@ class Http
     {
         if (PHP_MAJOR_VERSION < 8) {
             curl_close($this->ch);
+        } else {
+            unset($this->ch);
         }
         @unlink('/tmp/cluebot.wikipedia.http.cookies.' . $this->uid . '.dat');
     }
