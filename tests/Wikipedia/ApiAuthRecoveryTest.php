@@ -92,6 +92,28 @@ class ApiAuthRecoveryTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(6, count($http->calls));
     }
 
+    public function testEditDoesNotRetryMoreThanOnce()
+    {
+        $http = new FakeHttp([
+            self::LOGIN_TOKEN,
+            self::LOGIN_SUCCESS,
+            '{"query":{"tokens":{"csrftoken":"csrf1+\\\\"}}}',
+            self::ASSERT_USER_FAILED,
+            self::LOGIN_TOKEN,
+            self::LOGIN_SUCCESS,
+            '{"query":{"tokens":{"csrftoken":"csrf2+\\\\"}}}',
+            self::ASSERT_USER_FAILED,
+        ]);
+        $api = new Api($http);
+
+        $this->assertTrue($api->login('ClueBot III', 'pass'));
+        $this->assertFalse($api->edit('Some Page', 'new text', 'summary', false, true, null, null, false));
+
+        // Re-authentication succeeded both times, but the write kept failing - we must give up
+        // after one retry rather than recurse forever.
+        $this->assertEquals(8, count($http->calls));
+    }
+
     public function testUnrelatedErrorsAreNotTreatedAsAuthLoss()
     {
         $http = new FakeHttp([

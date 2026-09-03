@@ -527,6 +527,7 @@ class Api
      * @param $wpStarttime Time in MW TS format of beginning of edit.  (Default now)
      * @param $wpEdittime Time in MW TS format of last edit to that page.  (Default correct)
      * @param $checkrun Verify the user's /Run page state (Default true)
+     * @param $retry Retry once if we've lost our session.  (Default true, internal use only)
      *
      * @return bool True on success, false on failure.
      **/
@@ -538,7 +539,8 @@ class Api
         $bot = true,
         $wpStarttime = null,
         $wpEdittime = null,
-        $checkrun = true
+        $checkrun = true,
+        $retry = true
     ) {
         $wpq = new \Wikipedia\Query($this->http, $this->logger);
         $wpq->queryurl = str_replace('api.php', 'query.php', $this->apiurl);
@@ -582,8 +584,8 @@ class Api
         }
 
         if ($this->isAuthError($x)) {
-            if ($this->reauthenticate()) {
-                return $this->edit($page, $data, $summary, $minor, $bot, $wpStarttime, $wpEdittime, $checkrun);
+            if ($retry && $this->reauthenticate()) {
+                return $this->edit($page, $data, $summary, $minor, $bot, $wpStarttime, $wpEdittime, $checkrun, false);
             }
             return false;
         }
@@ -685,8 +687,9 @@ class Api
      * @param $new New page title.
      * @param $reason Move summary to use.
      * @param $checkrun Verify the user's /Run page state (Default true)
+     * @param $retry Retry once if we've lost our session.  (Default true, internal use only)
      **/
-    public function move($old, $new, $reason, $checkrun = true)
+    public function move($old, $new, $reason, $checkrun = true, $retry = true)
     {
         if ($checkrun === true && !$this->allowedToRun()) {
             if ($this->logger !== null) {
@@ -711,8 +714,8 @@ class Api
         $x = $this->http->post($this->apiurl, $params);
         $x = $this->http->unserialize($x);
 
-        if ($this->isAuthError($x) && $this->reauthenticate()) {
-            $this->move($old, $new, $reason, $checkrun);
+        if ($retry && $this->isAuthError($x) && $this->reauthenticate()) {
+            $this->move($old, $new, $reason, $checkrun, false);
         }
     }
 
@@ -724,8 +727,9 @@ class Api
      * @param $reason Edit summary to use for rollback.
      * @param $token Rollback token.  If not given, it will be fetched.  (Default null)
      * @param $checkrun Verify the user's /Run page state (Default true)
+     * @param $retry Retry once if we've lost our session.  (Default true, internal use only)
      **/
-    public function rollback($title, $user, $reason, $token = null, $checkrun = true)
+    public function rollback($title, $user, $reason, $token = null, $checkrun = true, $retry = true)
     {
         if ($checkrun === true && !$this->allowedToRun()) {
             if ($this->logger !== null) {
@@ -759,8 +763,8 @@ class Api
         $x = $this->http->unserialize($x);
 
         if ($this->isAuthError($x)) {
-            if ($this->reauthenticate()) {
-                return $this->rollback($title, $user, $reason, null, $checkrun);
+            if ($retry && $this->reauthenticate()) {
+                return $this->rollback($title, $user, $reason, null, $checkrun, false);
             }
             return false;
         }
