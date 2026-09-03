@@ -29,6 +29,7 @@ class Api
     private $pass;
     private $assert_auth;
     private $logger;
+    private const BAD_AUTH_CODES = ['badtoken', 'assertuserfailed', 'notloggedin'];
 
     /**
      * This is our constructor.
@@ -48,6 +49,57 @@ class Api
             $this->http = new \Wikipedia\Http($logger);
         }
         $this->logger = $logger;
+    }
+
+    /**
+     * Check whether a decoded API response indicates we are no longer authenticated.
+     *
+     * @param $response Decoded API response.
+     *
+     * @return bool True if the response indicates a lost session.
+     **/
+    private function isAuthError($response)
+    {
+        return isset($response['error']['code']) && in_array($response['error']['code'], self::BAD_AUTH_CODES, true);
+    }
+
+    /**
+     * Attempt to re-establish a lost session using the credentials from the last login() call.
+     *
+     * @return bool True on success, false on failure (or if we were never logged in).
+     **/
+    private function reauthenticate()
+    {
+        if (!$this->user) {
+            return false;
+        }
+
+        if ($this->logger !== null) {
+            $this->logger->debug('Lost authentication as ' . $this->user . ', re-authenticating');
+        }
+
+        return $this->login($this->user, $this->pass, $this->assert_auth);
+    }
+
+    /**
+     * Perform a GET request, decode it, and transparently re-authenticate & retry once
+     * if the response indicates our session was lost.
+     *
+     * @param $url The URL to get.
+     * @param $retry Should requests be re-tried if an auth error occurs.
+     *
+     * @return Decoded API response.
+     **/
+    private function requestGet($url, $retry = true)
+    {
+        $x = $this->http->get($url);
+        $x = $this->http->unserialize($x);
+
+        if ($retry && $this->isAuthError($x) && $this->reauthenticate()) {
+            return $this->requestGet($url, false);
+        }
+
+        return $x;
     }
 
     /**
@@ -110,11 +162,10 @@ class Api
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=recentchanges&rcprop=user|comment' .
             '|flags|timestamp|title|ids|sizes&format=json&rclimit=' . $count . $append
         );
-        $x = $this->http->unserialize($x);
         return $x['query']['recentchanges'] ?? [];
     }
 
@@ -153,11 +204,10 @@ class Api
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=search&format=json&srsearch=' .
             urlencode($search) . $append
         );
-        $x = $this->http->unserialize($x);
         return $x['query']['search'] ?? [];
     }
 
@@ -208,11 +258,10 @@ class Api
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&format=json&list=logevents&leprop=ids|' .
             'title|type|user|timestamp|comment|details' . $append
         );
-        $x = $this->http->unserialize($x);
         return $x['query']['logevents'] ?? [];
     }
 
@@ -236,11 +285,10 @@ class Api
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&format=json&list=usercontribs&ucuser=' .
             urlencode($user) . '&uclimit=' . urlencode($count) . '&ucdir=' . urlencode($dir) . $append
         );
-        $x = $this->http->unserialize($x);
         $continue = $x['query-continue']['usercontribs']['ucstart'] ?? null;
 
         return $x['query']['usercontribs'] ?? [];
@@ -269,11 +317,10 @@ class Api
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=allusers&format=json&auprop=' .
             'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
         );
-        $x = $this->http->unserialize($x);
         $continue = $x['query-continue']['allusers']['aufrom'] ?? null;
         if ($requirestart == true && ($x['query']['allusers'][0]['name'] ?? null) != $start) {
             return false;
@@ -301,11 +348,10 @@ class Api
             $append .= '&assert=user';
         }
         $category = 'Category:' . str_ireplace('category:', '', $category);
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=categorymembers&cmtitle=' .
             urlencode($category) . '&format=json&cmlimit=' . $count . $append
         );
-        $x = $this->http->unserialize($x);
 
         $continue = $x['query-continue']['categorymembers']['cmcontinue'] ?? null;
 
@@ -342,11 +388,10 @@ class Api
             $append .= '&assert=user';
         }
 
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=' .
             'allcategories&acprop=size&format=json' . $append
         );
-        $x = $this->http->unserialize($x);
 
         $start = $x['query-continue']['allcategories']['acfrom'] ?? null;
 
@@ -378,11 +423,10 @@ class Api
             $append .= '&assert=user';
         }
 
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=backlinks&bltitle=' .
             urlencode($page) . '&format=json&bllimit=' . $count . $append
         );
-        $x = $this->http->unserialize($x);
 
         if (
             array_key_exists('query-continue', $x) &&
@@ -416,11 +460,10 @@ class Api
             $append .= '&assert=user';
         }
 
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=embeddedin&eititle=' .
             urlencode($page) . '&format=json&eilimit=' . $count . $append
         );
-        $x = $this->http->unserialize($x);
 
         if (
             array_key_exists('query-continue', $x) &&
@@ -455,11 +498,10 @@ class Api
             $append .= '&assert=user';
         }
 
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&list=allpages&apprefix=' .
             urlencode($prefix) . '&format=json&aplimit=' . $count . $append
         );
-        $x = $this->http->unserialize($x);
 
         if (
             array_key_exists('query-continue', $x) &&
@@ -538,15 +580,15 @@ class Api
         if (isset($x['edit']['result']) && $x['edit']['result'] == 'Success') {
             return true;
         }
-        if (isset($x['error']['code']) && $x['error']['code'] == 'badtoken') {
-            if ($this->login($this->user, $this->pass, $this->assert_auth)) {
+
+        if ($this->isAuthError($x)) {
+            if ($this->reauthenticate()) {
                 return $this->edit($page, $data, $summary, $minor, $bot, $wpStarttime, $wpEdittime, $checkrun);
-            } else {
-                return false;
             }
-        } else {
             return false;
         }
+
+        return false;
     }
 
     /**
@@ -563,12 +605,11 @@ class Api
             $append .= '&assert=user';
         }
 
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?rawcontinue=1&format=json' .
             '&action=query&meta=tokens&type=csrf&titles=' .
             urlencode($title) . $append
         );
-        $x = $this->http->unserialize($x);
 
         return $x['query']['tokens']['csrftoken'] ?? null;
     }
@@ -668,7 +709,11 @@ class Api
         }
 
         $x = $this->http->post($this->apiurl, $params);
-        $this->http->unserialize($x);  // this emits warnings if needed
+        $x = $this->http->unserialize($x);
+
+        if ($this->isAuthError($x) && $this->reauthenticate()) {
+            $this->move($old, $new, $reason, $checkrun);
+        }
     }
 
     /**
@@ -690,8 +735,7 @@ class Api
             return false;
         }
 
-        $x = $this->http->get($this->apiurl . '?action=query&meta=tokens&type=rollback&format=json');
-        $x = $this->http->unserialize($x);
+        $x = $this->requestGet($this->apiurl . '?action=query&meta=tokens&type=rollback&format=json');
 
         $token = $x['query']['tokens']['rollbacktoken'] ?? null;
 
@@ -713,6 +757,13 @@ class Api
 
         $x = $this->http->post($this->apiurl, $params);
         $x = $this->http->unserialize($x);
+
+        if ($this->isAuthError($x)) {
+            if ($this->reauthenticate()) {
+                return $this->rollback($title, $user, $reason, null, $checkrun);
+            }
+            return false;
+        }
 
         return (isset($x['rollback']['summary']) and isset($x['rollback']['revid']) and $x['rollback']['revid'])
             ? true
@@ -743,7 +794,7 @@ class Api
         $dieonerror = true,
         $redirects = false
     ) {
-        $x = $this->http->get(
+        $x = $this->requestGet(
             $this->apiurl . '?action=query&rawcontinue=1&prop=revisions&rvslots=main&titles=' .
             urlencode($page) . '&rvlimit=' . urlencode($count) . '&rvprop=timestamp|ids|user|comment' .
             (($content) ? '|content' : '') . '&format=json&meta=userinfo&rvdir=' . urlencode($dir) .
@@ -751,7 +802,6 @@ class Api
             (($redirects == true) ? '&redirects' : '') .
             (($this->assert_auth) ? '&assert=user' : '')
         );
-        $x = $this->http->unserialize($x);
 
         if ($revid !== null) {
             $found = false;
