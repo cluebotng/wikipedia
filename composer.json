@@ -9,7 +9,7 @@
         "monolog/monolog": "@stable"
     },
     "require": {
-      "php": ">=7.2"
+      "php": ">=8.5.12"
     },
     "config": {
         "lock": false,
