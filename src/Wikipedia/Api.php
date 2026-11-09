@@ -221,43 +221,6 @@ class Api
     }
 
     /**
-     * Enumerate all categories.
-     *
-     * @param[in,out] $start Where to start enumerating.  This is updated automatically with the value to continue from.
-     *
-     * @param $limit Number of categories to enumerate.  (Default 50)
-     * @param $dir Direction to enumerate in.  'ascending' or 'descending'.  (Default 'ascending')
-     * @param $prefix Only enumerate categories with this prefix.  (Default null)
-     *
-     * @return Associative array of category list metadata.
-     **/
-    public function listcategories(&$start = null, $limit = 50, $dir = 'ascending', $prefix = null)
-    {
-        $append = '';
-        if ($start != null) {
-            $append .= '&acfrom=' . urlencode($start);
-        }
-        if ($limit != null) {
-            $append .= '&aclimit=' . urlencode($limit);
-        }
-        if ($dir != null) {
-            $append .= '&acdir=' . urlencode($dir);
-        }
-        if ($prefix != null) {
-            $append .= '&acprefix=' . urlencode($prefix);
-        }
-
-        $x = $this->requestGet(
-            $this->apiurl . '?action=query&list=' .
-            'allcategories&acprop=size&format=json' . $append
-        );
-
-        $start = $x['continue']['acfrom'] ?? null;
-
-        return $x['query']['allcategories'] ?? [];
-    }
-
-    /**
      * Enumerate all backlinks to a page.
      *
      * @param $page Page to search for backlinks to.
