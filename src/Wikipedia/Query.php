@@ -78,21 +78,6 @@ class Query
     }
 
     /**
-     * Gets the page id for a page.
-     *
-     * @param $page The wikipedia page to get the id for.
-     *
-     * @return The page id of the page.
-     **/
-    public function getpageid($page)
-    {
-        $this->checkurl();
-        $ret = $this->api->revisions($page, 1, 'older', false, null, true, false, false);
-
-        return $ret['pageid'];
-    }
-
-    /**
      * Gets the number of contributions a user has.
      *
      * @param $user The username for which to get the edit count.
