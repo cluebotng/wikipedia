@@ -456,45 +456,6 @@ class Api
     }
 
     /**
-     * Moves a page.
-     *
-     * @param $old Name of page to move.
-     * @param $new New page title.
-     * @param $reason Move summary to use.
-     * @param $checkrun Verify the user's /Run page state (Default true)
-     * @param $retry Retry once if we've lost our session.  (Default true, internal use only)
-     **/
-    public function move($old, $new, $reason, $checkrun = true, $retry = true)
-    {
-        if ($checkrun === true && !$this->allowedToRun()) {
-            if ($this->logger !== null) {
-                $this->logger->warning('Run page prevented move (' .
-                                          $old . ' -> ' . $new . ')');
-            }
-            return false;
-        }
-
-        $params = array(
-            'action' => 'move',
-            'format' => 'json',
-            'from' => $old,
-            'to' => $new,
-            'token' => $this->gettoken($old),
-            'reason' => $reason,
-        );
-        if ($this->assert_auth) {
-            $params['assert'] = 'user';
-        }
-
-        $x = $this->http->post($this->apiurl, $params);
-        $x = $this->http->unserialize($x);
-
-        if ($retry && $this->isAuthError($x) && $this->reauthenticate()) {
-            $this->move($old, $new, $reason, $checkrun, false);
-        }
-    }
-
-    /**
      * Rollback an edit.
      *
      * @param $title Title of page to rollback.
