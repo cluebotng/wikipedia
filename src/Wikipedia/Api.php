@@ -470,28 +470,17 @@ class Api
      **/
     public function embeddedin($page, $count = 500, &$continue = null)
     {
-        $append = '';
-        if ($continue != null) {
-            $append .= '&eicontinue=' . urlencode($continue);
-        }
+        $append = $this->continueParams($continue);
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
 
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=embeddedin&eititle=' .
+            $this->apiurl . '?action=query&list=embeddedin&eititle=' .
             urlencode($page) . '&format=json&eilimit=' . $count . $append
         );
 
-        if (
-            array_key_exists('query-continue', $x) &&
-            array_key_exists('embeddedin', $x['query-continue']) &&
-            array_key_exists('eicontinue', $x['query-continue']['embeddedin'])
-        ) {
-            $continue = $x['query-continue']['embeddedin']['eicontinue'];
-        } else {
-            $continue = null;
-        }
+        $continue = $x['continue'] ?? null;
 
         return $x['query']['embeddedin'] ?? [];
     }
