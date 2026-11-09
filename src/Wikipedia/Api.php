@@ -492,7 +492,9 @@ class Api
     {
         $append = '&apnamespace=' . urlencode($namespace);
         if ($continue != null) {
-            $append .= '&apfrom=' . urlencode($continue);
+            foreach ($continue as $key => $value) {
+                $append .= '&' . urlencode($key) . '=' . urlencode($value);
+            }
         }
         if ($this->assert_auth) {
             $append .= '&assert=user';
@@ -503,15 +505,7 @@ class Api
             urlencode($prefix) . '&format=json&aplimit=' . $count . $append
         );
 
-        if (
-            array_key_exists('query-continue', $x) &&
-            array_key_exists('allpages', $x['query-continue']) &&
-            array_key_exists('apfrom', $x['query-continue']['allpages'])
-        ) {
-            $continue = $x['query-continue']['allpages']['apfrom'];
-        } else {
-            $continue = null;
-        }
+        $continue = $x['query-continue']['allpages'] ?? null;
 
         return $x['query']['allpages'] ?? [];
     }
