@@ -163,33 +163,6 @@ class Api
     }
 
     /**
-     * This function returns the recent changes for the wiki.
-     *
-     * @param $count The number of items to return. (Default 10)
-     * @param $namespace The namespace ID to filter items on. Null for no filtering. (Default null)
-     * @param $dir The direction to pull items.  "older" or "newer".  (Default 'older')
-     * @param $ts The timestamp to start at.  Null for the beginning/end (depending on direction).  (Default null)
-     *
-     * @return Associative array of recent changes metadata.
-     **/
-    public function recentchanges($count = 10, $namespace = null, $dir = 'older', $ts = null)
-    {
-        $append = '';
-        if ($ts !== null) {
-            $append .= '&rcstart=' . urlencode($ts);
-        }
-        $append .= '&rcdir=' . urlencode($dir);
-        if ($namespace !== null) {
-            $append .= '&rcnamespace=' . urlencode($namespace);
-        }
-        $x = $this->requestGet(
-            $this->apiurl . '?action=query&list=recentchanges&rcprop=user|comment' .
-            '|flags|timestamp|title|ids|sizes&format=json&rclimit=' . $count . $append
-        );
-        return $x['query']['recentchanges'] ?? [];
-    }
-
-    /**
      * This function returns search results from Wikipedia's internal search engine.
      *
      * @param $search The query string to search for.
