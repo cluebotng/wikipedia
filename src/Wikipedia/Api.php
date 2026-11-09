@@ -334,10 +334,12 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=allusers&format=json&auprop=' .
+            $this->apiurl . '?action=query&list=allusers&format=json&auprop=' .
             'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
         );
-        $continue = $x['query-continue']['allusers']['aufrom'] ?? null;
+
+        $continue = $x['continue']['aufrom'] ?? null;
+
         if ($requirestart == true && ($x['query']['allusers'][0]['name'] ?? null) != $start) {
             return false;
         }
