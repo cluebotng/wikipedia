@@ -221,29 +221,6 @@ class Api
     }
 
     /**
-     * Get members of a category.
-     *
-     * @param $category Category to enumerate from.
-     * @param $count Number of members to enumerate.  (Default 500)
-     * @param[in,out] $continue Where to continue enumerating from.  This is automatically filled in when run.
-     *
-     * @return Associative array of category member metadata.
-     **/
-    public function categorymembers($category, $count = 500, &$continue = null)
-    {
-        $append = $this->continueParams($continue);
-        $category = 'Category:' . str_ireplace('category:', '', $category);
-        $x = $this->requestGet(
-            $this->apiurl . '?action=query&list=categorymembers&cmtitle=' .
-            urlencode($category) . '&format=json&cmlimit=' . $count . $append
-        );
-
-        $continue = $x['continue'] ?? null;
-
-        return $x['query']['categorymembers'] ?? [];
-    }
-
-    /**
      * Enumerate all categories.
      *
      * @param[in,out] $start Where to start enumerating.  This is updated automatically with the value to continue from.
