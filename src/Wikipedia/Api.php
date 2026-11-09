@@ -358,20 +358,17 @@ class Api
      **/
     public function categorymembers($category, $count = 500, &$continue = null)
     {
-        $append = '';
-        if ($continue != null) {
-            $append .= '&cmcontinue=' . urlencode($continue);
-        }
+        $append = $this->continueParams($continue);
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
         $category = 'Category:' . str_ireplace('category:', '', $category);
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=categorymembers&cmtitle=' .
+            $this->apiurl . '?action=query&list=categorymembers&cmtitle=' .
             urlencode($category) . '&format=json&cmlimit=' . $count . $append
         );
 
-        $continue = $x['query-continue']['categorymembers']['cmcontinue'] ?? null;
+        $continue = $x['continue'] ?? null;
 
         return $x['query']['categorymembers'] ?? [];
     }
