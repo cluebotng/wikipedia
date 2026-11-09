@@ -103,6 +103,24 @@ class Api
     }
 
     /**
+     * Builds the query string to continue a previous request.
+     *
+     * @param $continue The `continue` structure from a previous response.  Null means from the beginning.
+     *
+     * @return Query string to append to the request.
+     **/
+    private function continueParams($continue)
+    {
+        $append = '';
+        if ($continue != null) {
+            foreach ($continue as $key => $value) {
+                $append .= '&' . urlencode($key) . '=' . urlencode($value);
+            }
+        }
+        return $append;
+    }
+
+    /**
      * Check the state of the user's run page
      *
      * @return bool True on success, false on failure.
@@ -490,22 +508,18 @@ class Api
      **/
     public function listprefix($prefix, $namespace = 0, $count = 500, &$continue = null)
     {
-        $append = '&apnamespace=' . urlencode($namespace);
-        if ($continue != null) {
-            foreach ($continue as $key => $value) {
-                $append .= '&' . urlencode($key) . '=' . urlencode($value);
-            }
-        }
+        $append = $this->continueParams($continue);
+        $append .= '&apnamespace=' . urlencode($namespace);
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
 
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=allpages&apprefix=' .
+            $this->apiurl . '?action=query&list=allpages&apprefix=' .
             urlencode($prefix) . '&format=json&aplimit=' . $count . $append
         );
 
-        $continue = $x['query-continue']['allpages'] ?? null;
+        $continue = $x['continue'] ?? null;
 
         return $x['query']['allpages'] ?? [];
     }
