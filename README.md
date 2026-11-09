@@ -21,7 +21,7 @@ Both bot's include releases of this code in their `composer.json` i.e.
 # Usage
 
 Since `\Wikipedia\Http` is not designed for multiple instances (the cookies will be overwritten),
-the `Api`, `Index` & `Query` classes take an instance of the `Http` helper.
+the `Api` & `Query` classes take an instance of the `Http` helper.
 
 Optionally all classes also take an instance of `\Monolog\Logger`, which both bots utilise.
 
