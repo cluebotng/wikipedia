@@ -92,7 +92,12 @@ class Api
      **/
     private function requestGet($url, $retry = true)
     {
-        $x = $this->http->get($url);
+        $requestUrl = $url;
+        if ($this->assert_auth) {
+            $requestUrl .= '&assert=user';
+        }
+
+        $x = $this->http->get($requestUrl);
         $x = $this->http->unserialize($x);
 
         if ($retry && $this->isAuthError($x) && $this->reauthenticate()) {
@@ -177,9 +182,6 @@ class Api
         if ($namespace !== null) {
             $append .= '&rcnamespace=' . urlencode($namespace);
         }
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=recentchanges&rcprop=user|comment' .
             '|flags|timestamp|title|ids|sizes&format=json&rclimit=' . $count . $append
@@ -218,9 +220,6 @@ class Api
             $append .= '&srredirects=1';
         } else {
             $append .= '&srredirects=0';
-        }
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
         }
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=search&format=json&srsearch=' .
@@ -273,9 +272,6 @@ class Api
         if ($dir != null) {
             $append .= '&ledir=' . urlencode($dir);
         }
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
         $x = $this->requestGet(
             $this->apiurl . '?action=query&format=json&list=logevents&leprop=ids|' .
             'title|type|user|timestamp|comment|details' . $append
@@ -297,9 +293,6 @@ class Api
     public function usercontribs($user, $count = 50, &$continue = null, $dir = 'older')
     {
         $append = $this->continueParams($continue);
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
         $x = $this->requestGet(
             $this->apiurl . '?action=query&format=json&list=usercontribs&ucuser=' .
             urlencode($user) . '&uclimit=' . urlencode($count) . '&ucdir=' . urlencode($dir) . $append
@@ -330,9 +323,6 @@ class Api
         if ($group != null) {
             $append .= '&augroup=' . urlencode($group);
         }
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=allusers&format=json&auprop=' .
             'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
@@ -359,9 +349,6 @@ class Api
     public function categorymembers($category, $count = 500, &$continue = null)
     {
         $append = $this->continueParams($continue);
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
         $category = 'Category:' . str_ireplace('category:', '', $category);
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=categorymembers&cmtitle=' .
@@ -399,9 +386,6 @@ class Api
         if ($prefix != null) {
             $append .= '&acprefix=' . urlencode($prefix);
         }
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
 
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=' .
@@ -430,9 +414,6 @@ class Api
         if ($filter != null) {
             $append .= '&blfilterredir=' . urlencode($filter);
         }
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
 
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=backlinks&bltitle=' .
@@ -456,9 +437,6 @@ class Api
     public function embeddedin($page, $count = 500, &$continue = null)
     {
         $append = $this->continueParams($continue);
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
 
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=embeddedin&eititle=' .
@@ -484,9 +462,6 @@ class Api
     {
         $append = $this->continueParams($continue);
         $append .= '&apnamespace=' . urlencode($namespace);
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
 
         $x = $this->requestGet(
             $this->apiurl . '?action=query&list=allpages&apprefix=' .
@@ -584,15 +559,10 @@ class Api
      **/
     public function gettoken($title)
     {
-        $append = '';
-        if ($this->assert_auth) {
-            $append .= '&assert=user';
-        }
-
         $x = $this->requestGet(
             $this->apiurl . '?format=json' .
             '&action=query&meta=tokens&type=csrf&titles=' .
-            urlencode($title) . $append
+            urlencode($title)
         );
 
         return $x['query']['tokens']['csrftoken'] ?? null;
@@ -785,8 +755,7 @@ class Api
             urlencode($page) . '&rvlimit=' . urlencode($count) . '&rvprop=timestamp|ids|user|comment' .
             (($content) ? '|content' : '') . '&format=json&meta=userinfo&rvdir=' . urlencode($dir) .
             (($revid !== null) ? '&rvstartid=' . urlencode($revid) : '') .
-            (($redirects == true) ? '&redirects' : '') .
-            (($this->assert_auth) ? '&assert=user' : '')
+            (($redirects == true) ? '&redirects' : '')
         );
 
         if ($revid !== null) {
