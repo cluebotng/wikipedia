@@ -130,7 +130,7 @@ class Api
      *
      * @return bool True on success, false on failure.
      **/
-    public function allowedToRun()
+    private function allowedToRun()
     {
         if (!$this->user) {
             return false;
@@ -557,7 +557,7 @@ class Api
      *
      * @return A CSRF token for the page
      **/
-    public function gettoken($title)
+    private function gettoken($title)
     {
         $x = $this->requestGet(
             $this->apiurl . '?format=json' .
@@ -573,7 +573,7 @@ class Api
      *
      * @return A login token
      **/
-    public function getLoginToken()
+    private function getLoginToken()
     {
         $x = $this->http->get($this->apiurl . '?format=json' .
                               '&action=query&meta=tokens&type=login');

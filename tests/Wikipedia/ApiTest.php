@@ -50,10 +50,12 @@ class ApiTest extends \PHPUnit\Framework\TestCase
 
     public function testAllowedToRun()
     {
-        $api = new Api();
+        $http = new FakeHttp([]);
+        $api = new Api($http);
 
-        // We are not logged in, so this is always false
-        $this->assertFalse($api->allowedToRun());
+        // We are not logged in, so the run page check always prevents the edit
+        $this->assertFalse($api->edit('Some Page', 'new text'));
+        $this->assertEquals(0, count($http->calls));
     }
 
     public function testUserLoggedOut()
