@@ -163,57 +163,6 @@ class Api
     }
 
     /**
-     * Retrieve entries from the WikiLog.
-     *
-     * @param $user Username who caused the entry.  Null means anyone.  (Default null)
-     * @param $title Object to which the entry refers.  Null means anything.  (Default null)
-     * @param $limit Number of entries to return.  (Default 50)
-     * @param $type Type of logs.  Null means any type.  (Default null)
-     * @param $start Date to start enumerating logs.  Null means beginning/end depending on $dir.  (Default null)
-     * @param $end Where to stop enumerating logs.  Null means whenever limit is satisfied or there are no more logs.
-     * @param $dir Direction to enumerate logs.  "older" or "newer".  (Default 'older')
-     *
-     * @return Associative array of logs metadata.
-     **/
-    public function logs(
-        $user = null,
-        $title = null,
-        $limit = 50,
-        $type = null,
-        $start = null,
-        $end = null,
-        $dir = 'older'
-    ) {
-        $append = '';
-        if ($user != null) {
-            $append .= '&leuser=' . urlencode($user);
-        }
-        if ($title != null) {
-            $append .= '&letitle=' . urlencode($title);
-        }
-        if ($limit != null) {
-            $append .= '&lelimit=' . urlencode($limit);
-        }
-        if ($type != null) {
-            $append .= '&letype=' . urlencode($type);
-        }
-        if ($start != null) {
-            $append .= '&lestart=' . urlencode($start);
-        }
-        if ($end != null) {
-            $append .= '&leend=' . urlencode($end);
-        }
-        if ($dir != null) {
-            $append .= '&ledir=' . urlencode($dir);
-        }
-        $x = $this->requestGet(
-            $this->apiurl . '?action=query&format=json&list=logevents&leprop=ids|' .
-            'title|type|user|timestamp|comment|details' . $append
-        );
-        return $x['query']['logevents'] ?? [];
-    }
-
-    /**
      * Retrieves metadata about a user's contributions.
      *
      * @param $user Username whose contributions we want to retrieve.
