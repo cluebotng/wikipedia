@@ -23,11 +23,10 @@ namespace Wikipedia;
 
 class QueryTest extends \PHPUnit\Framework\TestCase
 {
-    public function testContribCount()
+    public function testGetPage()
     {
         $query = new Query();
-        $ret = $query->contribcount('ClueBot NG');
-        $this->assertGreaterThan(10, $query->contribcount('ClueBot NG'));
+        $this->assertNotEmpty($query->getpage('User:ClueBot NG'));
     }
 
     public function testHttpInstancel()
@@ -35,8 +34,7 @@ class QueryTest extends \PHPUnit\Framework\TestCase
         $http = new Http();
 
         $query = new Query($http);
-        $ret = $query->contribcount('ClueBot NG');
-        $this->assertGreaterThan(10, $query->contribcount('ClueBot NG'));
+        $this->assertNotEmpty($query->getpage('User:ClueBot NG'));
     }
 
     public function testLoggerInstancel()
@@ -44,7 +42,6 @@ class QueryTest extends \PHPUnit\Framework\TestCase
         $logger = new \Monolog\Logger('wikipedia');
 
         $query = new Query(null, $logger);
-        $ret = $query->contribcount('ClueBot NG');
-        $this->assertGreaterThan(10, $query->contribcount('ClueBot NG'));
+        $this->assertNotEmpty($query->getpage('User:ClueBot NG'));
     }
 }

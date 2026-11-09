@@ -29,7 +29,7 @@ If no arguments are passed, a local `Http` instance will be constructed along wi
 
 ```
 $query = new \Wikipedia\Query();
-$query->contribcount('ClueBot NG');
+$query->getpage('User:ClueBot NG');
 ```
 
 ```
@@ -43,5 +43,5 @@ $logger = new \Monolog\Logger('xxx');
 $http = new new \Wikipedia\Http($logger);
 $query = new new \Wikipedia\Query($http, $logger);
 
-$query->contribcount('ClueBot NG');
+$query->getpage('User:ClueBot NG');
 ```

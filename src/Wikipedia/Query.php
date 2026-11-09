@@ -76,22 +76,4 @@ class Query
     {
         $this->api->apiurl = str_replace('query.php', 'api.php', $this->queryurl);
     }
-
-    /**
-     * Gets the number of contributions a user has.
-     *
-     * @param $user The username for which to get the edit count.
-     *
-     * @return The number of contributions the user has.
-     **/
-    public function contribcount($user)
-    {
-        $this->checkurl();
-        $ret = $this->api->users($user, 1, null, true);
-        if ($ret !== false) {
-            return $ret[0]['editcount'];
-        }
-
-        return false;
-    }
 }
