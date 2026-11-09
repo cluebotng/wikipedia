@@ -296,18 +296,16 @@ class Api
      **/
     public function usercontribs($user, $count = 50, &$continue = null, $dir = 'older')
     {
-        $append = '';
-        if ($continue != null) {
-            $append .= '&ucstart=' . urlencode($continue);
-        }
+        $append = $this->continueParams($continue);
         if ($this->assert_auth) {
             $append .= '&assert=user';
         }
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&format=json&list=usercontribs&ucuser=' .
+            $this->apiurl . '?action=query&format=json&list=usercontribs&ucuser=' .
             urlencode($user) . '&uclimit=' . urlencode($count) . '&ucdir=' . urlencode($dir) . $append
         );
-        $continue = $x['query-continue']['usercontribs']['ucstart'] ?? null;
+
+        $continue = $x['continue'] ?? null;
 
         return $x['query']['usercontribs'] ?? [];
     }
