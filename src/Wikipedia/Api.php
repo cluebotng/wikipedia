@@ -181,7 +181,7 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=recentchanges&rcprop=user|comment' .
+            $this->apiurl . '?action=query&list=recentchanges&rcprop=user|comment' .
             '|flags|timestamp|title|ids|sizes&format=json&rclimit=' . $count . $append
         );
         return $x['query']['recentchanges'] ?? [];
@@ -223,7 +223,7 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=search&format=json&srsearch=' .
+            $this->apiurl . '?action=query&list=search&format=json&srsearch=' .
             urlencode($search) . $append
         );
         return $x['query']['search'] ?? [];
@@ -277,7 +277,7 @@ class Api
             $append .= '&assert=user';
         }
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&format=json&list=logevents&leprop=ids|' .
+            $this->apiurl . '?action=query&format=json&list=logevents&leprop=ids|' .
             'title|type|user|timestamp|comment|details' . $append
         );
         return $x['query']['logevents'] ?? [];
@@ -404,11 +404,11 @@ class Api
         }
 
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=' .
+            $this->apiurl . '?action=query&list=' .
             'allcategories&acprop=size&format=json' . $append
         );
 
-        $start = $x['query-continue']['allcategories']['acfrom'] ?? null;
+        $start = $x['continue']['acfrom'] ?? null;
 
         return $x['query']['allcategories'] ?? [];
     }
@@ -590,7 +590,7 @@ class Api
         }
 
         $x = $this->requestGet(
-            $this->apiurl . '?rawcontinue=1&format=json' .
+            $this->apiurl . '?format=json' .
             '&action=query&meta=tokens&type=csrf&titles=' .
             urlencode($title) . $append
         );
@@ -605,7 +605,7 @@ class Api
      **/
     public function getLoginToken()
     {
-        $x = $this->http->get($this->apiurl . '?rawcontinue=1&format=json' .
+        $x = $this->http->get($this->apiurl . '?format=json' .
                               '&action=query&meta=tokens&type=login');
         $x = $this->http->unserialize($x);
 
@@ -781,7 +781,7 @@ class Api
         $redirects = false
     ) {
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&prop=revisions&rvslots=main&titles=' .
+            $this->apiurl . '?action=query&prop=revisions&rvslots=main&titles=' .
             urlencode($page) . '&rvlimit=' . urlencode($count) . '&rvprop=timestamp|ids|user|comment' .
             (($content) ? '|content' : '') . '&format=json&meta=userinfo&rvdir=' . urlencode($dir) .
             (($revid !== null) ? '&rvstartid=' . urlencode($revid) : '') .
