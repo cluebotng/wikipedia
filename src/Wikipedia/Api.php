@@ -187,40 +187,6 @@ class Api
     }
 
     /**
-     * Enumerates user metadata.
-     *
-     * @param $start The username to start enumerating from.  Null means from the beginning.  (Default null)
-     * @param $limit The number of users to enumerate.  (Default 1)
-     * @param $group The usergroup to filter by.  Null means no filtering.  (Default null)
-     * @param $requirestart Whether or not to require that $start be a valid username.  (Default false)
-     * @param[out] $continue This is filled with the name to continue from next query.  (Default null)
-     *
-     * @return Associative array of user metadata.
-     **/
-    public function users($start = null, $limit = 1, $group = null, $requirestart = false, &$continue = null)
-    {
-        $append = '';
-        if ($start != null) {
-            $append .= '&aufrom=' . urlencode($start);
-        }
-        if ($group != null) {
-            $append .= '&augroup=' . urlencode($group);
-        }
-        $x = $this->requestGet(
-            $this->apiurl . '?action=query&list=allusers&format=json&auprop=' .
-            'blockinfo|editcount|registration|groups&aulimit=' . urlencode($limit) . $append
-        );
-
-        $continue = $x['continue']['aufrom'] ?? null;
-
-        if ($requirestart == true && ($x['query']['allusers'][0]['name'] ?? null) != $start) {
-            return false;
-        }
-
-        return $x['query']['allusers'] ?? [];
-    }
-
-    /**
      * Enumerate all backlinks to a page.
      *
      * @param $page Page to search for backlinks to.
