@@ -426,11 +426,7 @@ class Api
      **/
     public function backlinks($page, $count = 500, &$continue = null, $filter = null)
     {
-        if ($continue != null) {
-            $append = '&blcontinue=' . urlencode($continue);
-        } else {
-            $append = '';
-        }
+        $append = $this->continueParams($continue);
         if ($filter != null) {
             $append .= '&blfilterredir=' . urlencode($filter);
         }
@@ -439,19 +435,11 @@ class Api
         }
 
         $x = $this->requestGet(
-            $this->apiurl . '?action=query&rawcontinue=1&list=backlinks&bltitle=' .
+            $this->apiurl . '?action=query&list=backlinks&bltitle=' .
             urlencode($page) . '&format=json&bllimit=' . $count . $append
         );
 
-        if (
-            array_key_exists('query-continue', $x) &&
-            array_key_exists('backlinks', $x['query-continue']) &&
-            array_key_exists('blcontinue', $x['query-continue']['backlinks'])
-        ) {
-            $continue = $x['query-continue']['backlinks']['blcontinue'];
-        } else {
-            $continue = null;
-        }
+        $continue = $x['continue'] ?? null;
 
         return $x['query']['backlinks'] ?? [];
     }
