@@ -163,45 +163,6 @@ class Api
     }
 
     /**
-     * This function returns search results from Wikipedia's internal search engine.
-     *
-     * @param $search The query string to search for.
-     * @param $limit The number of results to return. (Default 10)
-     * @param $offset The number to start at.  (Default 0)
-     * @param $namespace The namespace ID to filter by.  Null means no filtering.  (Default 0)
-     * @param $what What to search, 'text' or 'title'.  (Default 'text')
-     * @param $redirs Whether or not to list redirects.  (Default false)
-     *
-     * @return Associative array of search result metadata.
-     **/
-    public function search($search, $limit = 10, $offset = 0, $namespace = 0, $what = 'text', $redirs = false)
-    {
-        $append = '';
-        if ($limit != null) {
-            $append .= '&srlimit=' . urlencode($limit);
-        }
-        if ($offset != null) {
-            $append .= '&sroffset=' . urlencode($offset);
-        }
-        if ($namespace != null) {
-            $append .= '&srnamespace=' . urlencode($namespace);
-        }
-        if ($what != null) {
-            $append .= '&srwhat=' . urlencode($what);
-        }
-        if ($redirs == true) {
-            $append .= '&srredirects=1';
-        } else {
-            $append .= '&srredirects=0';
-        }
-        $x = $this->requestGet(
-            $this->apiurl . '?action=query&list=search&format=json&srsearch=' .
-            urlencode($search) . $append
-        );
-        return $x['query']['search'] ?? [];
-    }
-
-    /**
      * Retrieve entries from the WikiLog.
      *
      * @param $user Username who caused the entry.  Null means anyone.  (Default null)
