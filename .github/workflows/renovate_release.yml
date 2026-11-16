@@ -5,7 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: read
     steps:
-      - uses: infrabits/ci-create-renovate-release@272b5bb5362a4bfc382e2eb9467b9733df321cf7 # v1.9.0
+      - uses: infrabits/ci-create-renovate-release@b7f4832b2f557608a13a04b6b9a0da8a2bc5f7ed # v2.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
